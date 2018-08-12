@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.util.Log
+import android.widget.Toast
+import com.google.android.gms.common.ConnectionResult
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -14,11 +16,14 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.places.Places
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.maps.model.PointOfInterest
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var googleApiClient: GoogleApiClient
 
     companion object {
         private const val REQUEST_LOCATION = 1
@@ -34,6 +39,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         setupLocationClient()
+        setupGoogleClient()
     }
 
     /**
@@ -48,6 +54,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         getCurrentLocation()
+        map.setOnPoiClickListener {
+            displayPoi(it)
+        }
+    }
+
+    private fun setupGoogleClient() {
+        googleApiClient = GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Places.GEO_DATA_API)
+                .build()
     }
 
     private fun setupLocationClient() {
@@ -83,5 +99,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.e(TAG, "Location permission denied")
             }
         }
+    }
+
+    override fun onConnectionFailed(connectionResult: ConnectionResult) {
+        Log.e(TAG, "Google play connection failed: " + connectionResult.errorMessage)
+    }
+
+    private fun displayPoi(pointOfInterest: PointOfInterest) {
+        Places.GeoDataApi.getPlaceById(googleApiClient, pointOfInterest.placeId)
+                .setResultCallback { places ->
+                    if (places.status.isSuccess && places.count > 0) {
+                        val place = places.get(0)
+                        Toast.makeText(this, "${place.name} ${place.phoneNumber}", Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.e(TAG, "Error with getPlaceById ${places.status.statusMessage}")
+                    }
+                    places.release()
+                }
     }
 }
