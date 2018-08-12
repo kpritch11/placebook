@@ -2,6 +2,7 @@ package self.edu.kurtis.placebook
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -18,6 +19,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Places
 import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.places.Place
+import com.google.android.gms.location.places.PlacePhotoMetadata
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
@@ -106,15 +111,61 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
     }
 
     private fun displayPoi(pointOfInterest: PointOfInterest) {
+        displayPoiGetPlaceStep(pointOfInterest)
+    }
+
+    private fun displayPoiGetPlaceStep(pointOfInterest: PointOfInterest) {
         Places.GeoDataApi.getPlaceById(googleApiClient, pointOfInterest.placeId)
                 .setResultCallback { places ->
                     if (places.status.isSuccess && places.count > 0) {
-                        val place = places.get(0)
-                        Toast.makeText(this, "${place.name} ${place.phoneNumber}", Toast.LENGTH_LONG).show()
+                        val place = places.get(0).freeze()
+                        displayPoiGetPhotoMetaDataStep(place)
                     } else {
                         Log.e(TAG, "Error with getPlaceById ${places.status.statusMessage}")
                     }
                     places.release()
                 }
+    }
+
+    private fun displayPoiGetPhotoMetaDataStep(place: Place) {
+        Places.GeoDataApi.getPlacePhotos(googleApiClient, place.id)
+                .setResultCallback { placePhotoMetadataResult ->
+                    if (placePhotoMetadataResult.status.isSuccess) {
+                        val photoMetadataBuffer = placePhotoMetadataResult.photoMetadata
+                        if (photoMetadataBuffer.count > 0) {
+                            val photo = photoMetadataBuffer.get(0).freeze()
+                            displayPoiGetPhotoStep(place, photo)
+                        }
+                        photoMetadataBuffer.release()
+                    }
+                }
+    }
+
+    private fun displayPoiGetPhotoStep(place: Place, photo: PlacePhotoMetadata) {
+        photo.getScaledPhoto(googleApiClient, resources.getDimensionPixelSize(R.dimen.default_image_width), resources.getDimensionPixelSize(R.dimen.default_image_height))
+                .setResultCallback { placePhotoResult ->
+                    if (placePhotoResult.status.isSuccess) {
+                        val image = placePhotoResult.bitmap
+                        displayPoiDisplayStep(place, image)
+                    } else {
+                       displayPoiDisplayStep(place, null)
+                    }
+                }
+    }
+
+    private fun displayPoiDisplayStep(place: Place, photo: Bitmap?) {
+        val iconPhoto = if (photo == null) {
+            BitmapDescriptorFactory
+                    .defaultMarker()
+        } else {
+            BitmapDescriptorFactory.fromBitmap(photo)
+        }
+
+        map.addMarker(MarkerOptions()
+                .position(place.latLng)
+                .icon(iconPhoto)
+                .title(place.name as String?)
+                .snippet(place.phoneNumber as String?)
+        )
     }
 }
