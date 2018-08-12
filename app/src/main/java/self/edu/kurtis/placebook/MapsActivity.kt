@@ -24,6 +24,7 @@ import com.google.android.gms.location.places.PlacePhotoMetadata
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
+import self.edu.kurtis.placebook.adapter.BookmarkInfoWindowAdapter
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
     private lateinit var map: GoogleMap
@@ -58,6 +59,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
      */
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map.setInfoWindowAdapter(BookmarkInfoWindowAdapter(this))
         getCurrentLocation()
         map.setOnPoiClickListener {
             displayPoi(it)
@@ -154,18 +156,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
     }
 
     private fun displayPoiDisplayStep(place: Place, photo: Bitmap?) {
-        val iconPhoto = if (photo == null) {
-            BitmapDescriptorFactory
-                    .defaultMarker()
-        } else {
-            BitmapDescriptorFactory.fromBitmap(photo)
-        }
-
-        map.addMarker(MarkerOptions()
+        val marker = map.addMarker(MarkerOptions()
                 .position(place.latLng)
-                .icon(iconPhoto)
                 .title(place.name as String?)
                 .snippet(place.phoneNumber as String?)
         )
+        marker?.tag = photo
     }
 }
