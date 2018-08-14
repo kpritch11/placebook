@@ -31,6 +31,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:" + "$play_services_version"
     implementation "com.google.android.gms:play-services-location:" + "$play_services_version"
     implementation "com.google.android.gms:play-services-places:" + "$play_services_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.3"
 
     implementation "android.arch.lifecycle:extensions:" + "$architecture_version"
     implementation "android.arch.persistence.room:runtime:" + "$room_version"
