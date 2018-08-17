@@ -6,6 +6,7 @@ buildscript {
         play_services_version = '15.0.1'
         architecture_version = '1.1.0'
         room_version = '1.0.0'
+        support_lib_version = '26.1.0'
     }
     repositories {
         google()
