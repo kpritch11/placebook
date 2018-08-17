@@ -37,6 +37,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
     companion object {
         private const val REQUEST_LOCATION = 1
         private const val TAG = "MapsActivity"
+        const val EXTRA_BOOKMARK_ID = "self.edu.kurtis.placebook.EXTRA_BOOKMARK_ID"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -221,6 +222,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
 
     private fun startBookmarkDetails(bookmarkId: Long) {
         val intent = Intent(this, BookmarkDetailsActivity::class.java)
+        intent.putExtra(EXTRA_BOOKMARK_ID, bookmarkId)
         startActivity(intent)
     }
 
