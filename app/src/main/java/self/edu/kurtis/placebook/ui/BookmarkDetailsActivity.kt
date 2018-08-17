@@ -3,6 +3,7 @@ package self.edu.kurtis.placebook.ui
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
+import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_bookmark_details.*
 import self.edu.kurtis.placebook.R
 import self.edu.kurtis.placebook.viewmodel.BookmarkDetailsViewModel
@@ -17,6 +18,12 @@ class BookmarkDetailsActivity : AppCompatActivity() {
         setupToolbar()
         setupViewModel()
         getIntentData()
+    }
+
+    override fun onCreateOptionsMenu(menu: android.view.Menu) : Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_bookmark_details, menu)
+        return true
     }
 
     private fun setupToolbar() {
@@ -54,5 +61,30 @@ class BookmarkDetailsActivity : AppCompatActivity() {
                 populateImageView()
             }
         })
+    }
+
+    private fun saveChanges() {
+        val name = editTextName.text.toString()
+        if (name.isEmpty()) {
+            return
+        }
+        bookmarkDetailsView?.let { bookmarkView ->
+            bookmarkView.name = editTextName.text.toString()
+            bookmarkView.notes = editTextNotes.text.toString()
+            bookmarkView.address = editTextAddress.text.toString()
+            bookmarkView.phone = editTextPhone.text.toString()
+            bookmarkDetailsViewModel.updateBookmark(bookmarkView)
+        }
+        finish()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) : Boolean {
+        when (item.itemId) {
+            R.id.action_save -> {
+                saveChanges()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 }

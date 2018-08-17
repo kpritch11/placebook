@@ -6,6 +6,8 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Transformations
 import android.content.Context
 import android.graphics.Bitmap
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
 import self.edu.kurtis.placebook.model.Bookmark
 import self.edu.kurtis.placebook.repository.BookmarkRepo
 import self.edu.kurtis.placebook.util.ImageUtils
@@ -52,5 +54,26 @@ class BookmarkDetailsViewModel(application: Application) : AndroidViewModel(appl
             mapBookmarkToBookmarkView(bookmarkId)
         }
         return bookmarkDetailsView
+    }
+
+    private fun bookmarkViewToBookmark(bookmarkView: BookmarkDetailsView): Bookmark? {
+        val bookmark = bookmarkView.id?.let {
+            bookmarkRepo.getBookmark(it)
+        }
+        if (bookmark != null) {
+            bookmark.id = bookmarkView.id
+            bookmark.name = bookmarkView.name
+            bookmark.phone = bookmarkView.phone
+            bookmark.address = bookmarkView.address
+            bookmark.notes = bookmarkView.notes
+        }
+        return bookmark
+    }
+
+    fun updateBookmark(bookmarkView: BookmarkDetailsView) {
+        launch(CommonPool) {
+            val bookmark = bookmarkViewToBookmark(bookmarkView)
+            bookmark?.let { bookmarkRepo.updateBookmark(it) }
+        }
     }
 }
