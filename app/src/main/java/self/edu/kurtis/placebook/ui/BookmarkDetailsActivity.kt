@@ -2,16 +2,23 @@ package self.edu.kurtis.placebook.ui
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.provider.MediaStore
+import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_bookmark_details.*
 import self.edu.kurtis.placebook.R
+import self.edu.kurtis.placebook.util.ImageUtils
 import self.edu.kurtis.placebook.viewmodel.BookmarkDetailsViewModel
+import java.io.File
 
 class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.PhotoOptionDialogListener {
     private lateinit var bookmarkDetailsViewModel: BookmarkDetailsViewModel
     private var bookmarkDetailsView: BookmarkDetailsViewModel.BookmarkDetailsView? = null
+    private var photoFile: File? = null
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +100,23 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
     }
 
     override fun onCaptureClick() {
-        Toast.makeText(this, "Camera Capture", Toast.LENGTH_SHORT).show()
+        photoFile = null
+        try {
+            photoFile = ImageUtils.createUniqueImageFile(this)
+            if (photoFile == null) {
+                return
+            }
+        } catch (ex: java.io.IOException) {
+            return
+        }
+
+        val captureIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+        val photoUri = FileProvider.getUriForFile(this, "self.edu.kurtis.placebook.fileprovider", photoFile)
+        captureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoUri)
+        val intentActivities = packageManager.queryIntentActivities(captureIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        intentActivities.map { it.activityInfo.packageName }
+                .forEach { grantUriPermission(it, photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }
+        startActivityForResult(captureIntent, REQUEST_CAPTURE_IMAGE)
     }
 
     override fun onPickClick() {
@@ -103,5 +126,9 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
     private fun replaceImage() {
         val newFragment = PhotoOptionDialogFragment.newInstance(this)
         newFragment?.show(supportFragmentManager, "photoOptionDialog")
+    }
+
+    companion object {
+        private const val REQUEST_CAPTURE_IMAGE = 1
     }
 }
