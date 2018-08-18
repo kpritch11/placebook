@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v7.app.ActionBarDrawerToggle
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
 
@@ -22,6 +23,8 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.PlacePhotoMetadata
 import com.google.android.gms.maps.model.*
+import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.android.synthetic.main.main_view_maps.*
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 import self.edu.kurtis.placebook.R
@@ -47,6 +50,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
         mapFragment.getMapAsync(this)
 
         setupLocationClient()
+        setupToolbar()
         setupGoogleClient()
     }
 
@@ -224,6 +228,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
         val intent = Intent(this, BookmarkDetailsActivity::class.java)
         intent.putExtra(EXTRA_BOOKMARK_ID, bookmarkId)
         startActivity(intent)
+    }
+
+    private fun setupToolbar() {
+        setSupportActionBar(toolbar)
+        val toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer)
+        toggle.syncState()
     }
 
     class PlaceInfo(val place: Place? = null, val image: Bitmap? = null)

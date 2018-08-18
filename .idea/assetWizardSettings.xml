@@ -19,8 +19,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="$USER_HOME$/Assets/Ray Wenderlich/Android Apprentice/17-detail-activity/starter/PlaceBook/app/src/main/res/drawable-xxhdpi/ic_action_done.png" />
-                                      <entry key="outputName" value="ic_action_done" />
+                                      <entry key="imageAsset" value="$USER_HOME$/Assets/Ray Wenderlich/Android Apprentice/18-navigation-and-photos/starter/PlaceBook/app/src/main/res/drawable-xxxhdpi/ic_other.png" />
+                                      <entry key="outputName" value="ic_other" />
                                     </map>
                                   </option>
                                 </PersistentState>
