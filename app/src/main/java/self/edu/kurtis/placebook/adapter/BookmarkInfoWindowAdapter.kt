@@ -1,7 +1,6 @@
 package self.edu.kurtis.placebook.adapter
 
 import android.app.Activity
-import android.graphics.Bitmap
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -35,9 +34,9 @@ class BookmarkInfoWindowAdapter(val context: Activity) : GoogleMap.InfoWindowAda
             is MapsActivity.PlaceInfo -> {
                 imageView.setImageBitmap((marker.tag as MapsActivity.PlaceInfo).image)
             }
-            is MapsViewModel.BookmarkMarkerView -> {
-                var bookmarkMarkerView = marker.tag as MapsViewModel.BookmarkMarkerView
-                imageView.setImageBitmap(bookmarkMarkerView.getImage(context))
+            is MapsViewModel.BookmarkView -> {
+                var bookmarkView = marker.tag as MapsViewModel.BookmarkView
+                imageView.setImageBitmap(bookmarkView.getImage(context))
             }
         }
 
