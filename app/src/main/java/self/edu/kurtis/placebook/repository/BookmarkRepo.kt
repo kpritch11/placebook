@@ -13,6 +13,8 @@ class BookmarkRepo(private val context: Context) {
     private var bookmarkDao: BookmarkDao = db.bookmarkDao()
     private var categoryMap: HashMap<Int, String> = buildCategoryMap()
     private var allCategories: HashMap<String, Int> = buildCategories()
+    val categories: List<String>
+        get() = ArrayList(allCategories.keys)
 
     fun addBookmark(bookmark: Bookmark): Long? {
         val newId = bookmarkDao.insertBookmark(bookmark)

@@ -21,7 +21,8 @@ class BookmarkDetailsViewModel(application: Application) : AndroidViewModel(appl
             var name: String = "",
             var phone: String = "",
             var address: String = "",
-            var notes: String = ""
+            var notes: String = "",
+            var category: String = ""
     ) {
         fun getImage(context: Context): Bitmap? {
             id?.let {
@@ -43,7 +44,8 @@ class BookmarkDetailsViewModel(application: Application) : AndroidViewModel(appl
                 bookmark.name,
                 bookmark.phone,
                 bookmark.address,
-                bookmark.notes
+                bookmark.notes,
+                bookmark.category
         )
     }
 
@@ -72,6 +74,7 @@ class BookmarkDetailsViewModel(application: Application) : AndroidViewModel(appl
             bookmark.phone = bookmarkView.phone
             bookmark.address = bookmarkView.address
             bookmark.notes = bookmarkView.notes
+            bookmark.category = bookmarkView.category
         }
         return bookmark
     }
@@ -81,5 +84,13 @@ class BookmarkDetailsViewModel(application: Application) : AndroidViewModel(appl
             val bookmark = bookmarkViewToBookmark(bookmarkView)
             bookmark?.let { bookmarkRepo.updateBookmark(it) }
         }
+    }
+
+    fun getCategoryResourceId(category: String) : Int? {
+        return bookmarkRepo.getCategoryResourceId(category)
+    }
+
+    fun getCategories() : List<String> {
+        return bookmarkRepo.categories
     }
 }
