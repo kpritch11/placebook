@@ -39,7 +39,9 @@ class BookmarkListAdapter(private var bookmarkData: List<MapsViewModel.BookmarkV
         val bookmarkViewData = bookmarkData[position]
         holder.itemView.tag = bookmarkViewData
         holder.nameTextView.text = bookmarkViewData.name
-        holder.categoryImageView.setImageResource(R.drawable.ic_other)
+        bookmarkViewData.categoryResourceId?.let {
+            holder.categoryImageView.setImageResource(it)
+        }
     }
 
     override fun getItemCount(): Int {

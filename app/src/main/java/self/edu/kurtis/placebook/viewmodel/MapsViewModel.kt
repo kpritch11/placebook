@@ -26,6 +26,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         bookmark.latitude = place.latLng.latitude
         bookmark.phone = place.phoneNumber.toString()
         bookmark.address = place.address.toString()
+        bookmark.category = getPlaceCategory(place)
 
         val newId = bookmarkRepo.addBookmark(bookmark)
         bookmark.setImage(image, getApplication())
@@ -37,7 +38,8 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
                 bookmark.id,
                 LatLng(bookmark.latitude, bookmark.longitude),
                 bookmark.name,
-                bookmark.phone)
+                bookmark.phone,
+                bookmarkRepo.getCategoryResourceId(bookmark.category))
     }
 
     private fun mapBookmarksToBookmarkView() {
@@ -61,7 +63,8 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
             var id: Long? = null,
             var location: LatLng = LatLng(0.0, 0.0),
             var name: String = "",
-            var phone: String = ""
+            var phone: String = "",
+            val categoryResourceId: Int? = null
     ) {
         fun getImage(context: Context) : Bitmap? {
             id?.let {
@@ -69,5 +72,17 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
             }
             return null
         }
+    }
+
+    private fun getPlaceCategory(place: Place) : String {
+        var category = "Other"
+        val placeTypes = place.placeTypes
+
+        if (placeTypes.size > 0) {
+            val placeType = placeTypes[0]
+            category = bookmarkRepo.placeTypeToCategory(placeType)
+        }
+
+        return category
     }
 }

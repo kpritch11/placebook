@@ -209,7 +209,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
                 .position(bookmark.location)
                 .title(bookmark.name)
                 .snippet(bookmark.phone)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .icon(bookmark.categoryResourceId?.let {
+                    BitmapDescriptorFactory.fromResource(it)
+                })
                 .alpha(0.8f))
         marker.tag = bookmark
         bookmark.id?.let { markers.put(it, marker) }
