@@ -1,6 +1,7 @@
 package self.edu.kurtis.placebook.ui
 
 import android.Manifest
+import android.app.Activity
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,6 +14,8 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -24,6 +27,7 @@ import com.google.android.gms.location.places.Places
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.PlacePhotoMetadata
+import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.drawer_view_maps.*
@@ -47,6 +51,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
         private const val REQUEST_LOCATION = 1
         private const val TAG = "MapsActivity"
         const val EXTRA_BOOKMARK_ID = "self.edu.kurtis.placebook.EXTRA_BOOKMARK_ID"
+        private const val AUTOCOMPLETE_REQUEST_CODE = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +80,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
         }
         map.setOnInfoWindowClickListener {
             handleInfoWindowClick(it)
+        }
+        fab.setOnClickListener {
+            searchAtCurrentLocation()
         }
     }
 
@@ -272,5 +280,34 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
         location.latitude = bookmark.location.latitude
         location.longitude = bookmark.location.longitude
         updateMapToLocation(location)
+    }
+
+    private fun searchAtCurrentLocation() {
+        val bounds = map.projection.visibleRegion.latLngBounds
+        try {
+            val intent = PlaceAutocomplete.IntentBuilder(
+                    PlaceAutocomplete.MODE_OVERLAY)
+                    .setBoundsBias(bounds)
+                    .build(this)
+            startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE)
+        } catch (e: GooglePlayServicesRepairableException) {
+            // TODO: handle exception
+        } catch(e: GooglePlayServicesNotAvailableException) {
+            // TODO: handle exception
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            AUTOCOMPLETE_REQUEST_CODE ->
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val place = PlaceAutocomplete.getPlace(this, data)
+                    val location = Location("")
+                    location.latitude = place.latLng.latitude
+                    location.longitude = place.latLng.longitude
+                    updateMapToLocation(location)
+                    displayPoiGetPhotoMetaDataStep(place)
+                }
+        }
     }
 }
