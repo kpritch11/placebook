@@ -4,6 +4,7 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 import android.content.Context
 import android.graphics.Bitmap
+import self.edu.kurtis.placebook.util.FileUtils
 import self.edu.kurtis.placebook.util.ImageUtils
 
 @Entity
@@ -27,6 +28,12 @@ data class Bookmark(
     companion object {
         fun generateImageFilename(id: Long): String {
             return "bookmark$id.png"
+        }
+    }
+
+    fun deleteImage(context: Context) {
+        id?.let {
+            FileUtils.deleteFile(context, generateImageFilename(it))
         }
     }
 }

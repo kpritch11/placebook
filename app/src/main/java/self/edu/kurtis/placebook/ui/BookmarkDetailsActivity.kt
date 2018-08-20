@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
@@ -100,6 +101,10 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
         when (item.itemId) {
             R.id.action_save -> {
                 saveChanges()
+                return true
+            }
+            R.id.action_delete -> {
+                deleteBookmark()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -201,5 +206,18 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
                 }
             }
         }
+    }
+
+    private fun deleteBookmark() {
+        val bookmarkView = bookmarkDetailsView ?: return
+
+        AlertDialog.Builder(this)
+                .setMessage("Delete?")
+                .setPositiveButton("Ok") { _, _ ->
+                    bookmarkDetailsViewModel.deleteBookmark(bookmarkView)
+                    finish()
+                }
+                .setNegativeButton("Cancel", null)
+                .create().show()
     }
 }
