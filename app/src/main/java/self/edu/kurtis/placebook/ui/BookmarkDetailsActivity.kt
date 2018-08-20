@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -20,6 +21,7 @@ import self.edu.kurtis.placebook.R
 import self.edu.kurtis.placebook.util.ImageUtils
 import self.edu.kurtis.placebook.viewmodel.BookmarkDetailsViewModel
 import java.io.File
+import java.net.URLEncoder
 
 class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.PhotoOptionDialogListener {
     private lateinit var bookmarkDetailsViewModel: BookmarkDetailsViewModel
@@ -32,6 +34,7 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
         setupToolbar()
         setupViewModel()
         getIntentData()
+        setupFab()
     }
 
     override fun onCreateOptionsMenu(menu: android.view.Menu) : Boolean {
@@ -219,5 +222,29 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
                 }
                 .setNegativeButton("Cancel", null)
                 .create().show()
+    }
+
+    private fun sharePlace() {
+        val bookmarkView = bookmarkDetailsView ?: return
+
+        var mapUrl = ""
+        if (bookmarkView.placeId == null) {
+            val location = URLEncoder.encode("${bookmarkView.latitude}," + "${bookmarkView.longitude}", "utf-8")
+            mapUrl = "https://www.google.com/maps/dir/?api=1" + "&destination=$location"
+        } else {
+            val name = URLEncoder.encode(bookmarkView.name, "utf-8")
+            mapUrl = "https://www.google.com/maps/dir/?api=1" + "&destination=$name&destination_place_id=" + "${bookmarkView.placeId}"
+        }
+
+        val sendIntent = Intent()
+        sendIntent.action = Intent.ACTION_SEND
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "Check out ${bookmarkView.name} at:\n$mapUrl")
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing ${bookmarkView.name}")
+        sendIntent.type = "text/plain"
+        startActivity(sendIntent)
+    }
+
+    private fun setupFab() {
+        fab.setOnClickListener { sharePlace() }
     }
 }
