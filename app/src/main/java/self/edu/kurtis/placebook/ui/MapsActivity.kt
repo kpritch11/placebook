@@ -84,6 +84,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
         fab.setOnClickListener {
             searchAtCurrentLocation()
         }
+        map.setOnMapLongClickListener { latLng ->
+            newBookmark(latLng)
+        }
     }
 
     private fun setupGoogleClient() {
@@ -308,6 +311,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
                     updateMapToLocation(location)
                     displayPoiGetPhotoMetaDataStep(place)
                 }
+        }
+    }
+
+    private fun newBookmark(latLng: LatLng) {
+        launch(CommonPool) {
+            val bookmarkId = mapsViewModel.addBookmark(latLng)
+            bookmarkId?.let {
+                startBookmarkDetails(it)
+            }
         }
     }
 }

@@ -85,4 +85,13 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
         return category
     }
+
+    fun addBookmark(latLng: LatLng) : Long? {
+        val bookmark = bookmarkRepo.createBookmark()
+        bookmark.name = ""
+        bookmark.latitude = latLng.latitude
+        bookmark.longitude = latLng.longitude
+        bookmark.category = "Other"
+        return bookmarkRepo.addBookmark(bookmark)
+    }
 }
